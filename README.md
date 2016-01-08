@@ -1,8 +1,5 @@
-yes
+yes -- be repetitively affirmative
 ===
-
-be repetitively affirmative
----------------------------
 
 This is an implementation of the *yes* command.
 
