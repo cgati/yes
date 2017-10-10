@@ -35,7 +35,7 @@ fn fill_up_buffer<'a>(buffer: &'a mut [u8], output: &'a [u8]) -> &'a [u8] {
     buffer[..buffer_size].clone_from_slice(output);
 
     while buffer_size < buffer.len() / 2 {
-        let (left, mut right) = buffer.split_at_mut(buffer_size);
+        let (left, right) = buffer.split_at_mut(buffer_size);
         right[..buffer_size].clone_from_slice(left);
         buffer_size *= 2;
     }
