@@ -1,7 +1,6 @@
 use std::env;
 use std::io::{self, Write};
 use std::process;
-use std::borrow::Cow;
 
 #[cfg(not(unix))]
 mod platform {
@@ -54,12 +53,13 @@ fn write(output: &[u8]) {
 }
 
 fn main() {
-    write(&env::args_os()
-        .nth(1)
-        .map(to_bytes)
-        .map_or(Cow::Borrowed(&b"y\n"[..]), |mut arg| {
+    match env::args_os().nth(1) {
+        None => write(b"y\n"),
+        Some(arg) => {
+            let mut arg = to_bytes(arg);
             arg.push(b'\n');
-            Cow::Owned(arg)
-        }));
+            write(&arg);
+        }
+    }
     process::exit(1);
 }
