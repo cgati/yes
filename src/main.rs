@@ -1,30 +1,8 @@
 use std::env;
 use std::io::{self, Write};
 use std::process;
-use std::borrow::Cow;
 
-#[cfg(not(unix))]
-mod platform {
-    use std::ffi::OsString;
-    pub const BUFFER_CAPACITY: usize = 16 * 1024;
-
-    pub fn to_bytes(os_str: OsString) -> Vec<u8> {
-        os_str.into_string().expect("non utf-8 argument only supported on unix").into()
-    }
-}
-
-#[cfg(unix)]
-mod platform {
-    use std::ffi::OsString;
-    pub const BUFFER_CAPACITY: usize = 64 * 1024;
-
-    pub fn to_bytes(os_str: OsString) -> Vec<u8> {
-        use std::os::unix::ffi::OsStringExt;
-        os_str.into_vec()
-    }
-}
-
-use platform::*;
+pub const BUFFER_CAPACITY: usize = 64 * 1024;
 
 fn fill_up_buffer<'a>(buffer: &'a mut [u8], output: &'a [u8]) -> &'a [u8] {
     if output.len() > buffer.len() / 2 {
@@ -54,12 +32,15 @@ fn write(output: &[u8]) {
 }
 
 fn main() {
-    write(&env::args_os()
-        .nth(1)
-        .map(to_bytes)
-        .map_or(Cow::Borrowed(&b"y\n"[..]), |mut arg| {
-            arg.push(b'\n');
-            Cow::Owned(arg)
-        }));
+    let args: Vec<String> = env::args().collect();
+    
+    let string = if args.is_empty() {
+        "y\n".to_owned()
+    } else {
+        args[1..].join(" ") + "\n"
+    };    
+    
+    write(&string.as_bytes());
+    
     process::exit(1);
 }
